@@ -9,6 +9,7 @@
 * drone.registration.request - запрос на регистрацию дрона
 
 Поля:
+<code>
 request_id - идентификатор запроса
 
 timestamp - время отправки

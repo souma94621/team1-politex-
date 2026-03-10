@@ -18,7 +18,7 @@ drone.manufacturer - издатель
 firmware.version - версия прошивки</code> 
 
 Пример запроса:
-
+```
 {
 
   "request_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -42,7 +42,7 @@ firmware.version - версия прошивки</code>
   }
   
 }
-
+```
 * drone.registration.result - ответ о (не)успешной регистрации
 ## Эксплуатант
 Используются топики:

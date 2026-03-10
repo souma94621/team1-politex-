@@ -9,13 +9,13 @@
 * drone.registration.request - запрос на регистрацию дрона
 
 Поля:
-```
+
 request_id - идентификатор запроса
 timestamp - время отправки
 drone.drone_id - id дрона
 drone.model - модель
 drone.manufacturer - издатель
-firmware.version - версия прошивки```
+firmware.version - версия прошивки
 
 Пример запроса:
 ```json

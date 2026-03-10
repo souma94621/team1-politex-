@@ -18,18 +18,30 @@ drone.manufacturer - издатель
 firmware.version - версия прошивки</code> 
 
 Пример запроса:
-<code>{
+{
+
   "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  
   "timestamp": "2026-03-10T12:30:00Z",
+  
   "drone": {
+  
     "drone_id": "UAV-4521",
+    
     "model": "DeliveryDrone-X2",
+    
     "manufacturer": "DroneTech"
+    
   },
+  
   "firmware": {
+  
     "version": "3.2.1"
+    
   }
-}</code>
+  
+}
+
 * drone.registration.result - ответ о (не)успешной регистрации
 ## Эксплуатант
 Используются топики:

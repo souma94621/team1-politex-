@@ -1,6 +1,7 @@
 ## Архитектруа регулятора:
 <img width="1134" height="1031" alt="регулятор" src="https://github.com/user-attachments/assets/b168aa57-0364-4acc-bf5c-58ef297d9eab" />
 
+<img width="1135" height="1031" alt="регулятор" src="https://github.com/user-attachments/assets/267cc2bb-14b3-4436-ab45-c998ba3df8ee" />
 
 
 ### Топики

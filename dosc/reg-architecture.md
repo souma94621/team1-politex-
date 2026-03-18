@@ -1,6 +1,5 @@
-## Архитектруа регулятора:
+## Архитектура регулятора:
 <img width="1135" height="1071" alt="регулятор" src="https://github.com/user-attachments/assets/9a7b1b49-f6a6-4b0f-b93c-53867f529111" />
-
 
 ### Топики
 * v1.operator.op1.certificate_request

@@ -53,5 +53,24 @@
 * v1.drone_port.orchestretor - в процессе (https://github.com/Kaitrye/DronePortGCS/blob/drone_port/systems/drone_port/src/drone_manager/topics.py)
 * v1.gcs.1.orchestrator находится в https://github.com/Kaitrye/DronePortGCS?tab=readme-ov-file#интеграция-с-эксплуатантом
 * v1.Insurer.op1.insurer-service.requests и v1.Insurer.op1.insurer-service.responses находится в https://github.com/DashDashh/Insurer
-* v1.operator.op1.certificate
+* v1.operator.op1.certificate_request
+```
+{
+  "timestamp": "2026-03-18T17:50:00Z",
+  "message_id": "op-cert-req-101",
+  "operator_id": "OP-77",
+  "drone_id": "DRN-C2-4048",
+  "digital_signature": "sha256:a1b2c3d4e5..."
+}
+```
+* v1.operator.op1.certificate_result
+```
+{
+  "message_id": "op-cert-req-101",
+  "operator_id": "OP-77",
+  "certificate_status": "certified",
+  "certificate_id": "CERT-2026-999-XYZ",
+  "digital_signature": "sha256:f1g2h3j4k5..."
+}
+```
 * v1.aggregator_insurer.local.operator.responses и v1.aggregator_insurer.local.operator.requests находятся на https://github.com/DashDashh/Agregator

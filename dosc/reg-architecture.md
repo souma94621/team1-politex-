@@ -5,11 +5,24 @@
 ### Топики
 * v1.operator.op1.certificate_request
 ```
-
+{
+  "timestamp": "2026-03-18T17:50:00Z",
+  "message_id": "op-cert-req-101",
+  "operator_id": "OP-77",
+  "drone_id": "DRN-C2-4048",
+  "digital_signature": "sha256:a1b2c3d4e5..."
+}
 ```
 * v1.operator.op1.certificate_result
 ```
-
+{
+  "timestamp": "2026-03-18T17:50:00Z",
+  "message_id": "op-cert-req-101",
+  "operator_id": "OP-77",
+  "certificate_status": "certified",
+  "certificate_id": "CERT-2026-999-XYZ",
+  "digital_signature": "sha256:f1g2h3j4k5..."
+}
 ```
 * v1.Insurer.reg1.insurer-service.responses - в процессе
 

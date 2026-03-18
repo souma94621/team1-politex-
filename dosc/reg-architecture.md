@@ -5,9 +5,32 @@
 
 ### Топики
 * v1.Insurer.reg1.insurer-service.responses - в процессе
+Поля:
+```
+{
+  "timestamp": "2026-03-18T17:35:00Z",
+  "message_id": "ins-min-001",
+  "insurer_id": "INS-GLOBAL-77",
+  "digital_signature": "sha256:8f32a1b9c..."
+}
+```
 * v1.Insurer.reg1.insurer-service.requests - в процессе
+Поля:
+```
+{
+  "timestamp": "2026-03-10T12:00:00Z",
+  "message_id": "ins-min-001",
+  "insurer_id": "INS-GLOBAL-77",
+  "requirements_checked": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+  ],
+  "status": "accepted",
+  "digital_signature": "sha256:4d5e6f7a8b..."
+}
+```
 * v1.firmware.certification.request
-
 Поля:
 ```json
 {
@@ -26,7 +49,6 @@
 }
 ```
 * v1.firmware.certificate.result
-
 Поля:
 ```json
 {

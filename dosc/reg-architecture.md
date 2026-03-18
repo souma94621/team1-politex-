@@ -4,6 +4,7 @@
 
 ### Топики
 * v1.Insurer.reg1.insurer-service.responses - в процессе
+
 Поля:
 ```
 {
@@ -14,6 +15,7 @@
 }
 ```
 * v1.Insurer.reg1.insurer-service.requests - в процессе
+
 Поля:
 ```
 {
@@ -30,6 +32,7 @@
 }
 ```
 * v1.firmware.certification.request
+
 Поля:
 ```json
 {
@@ -48,6 +51,7 @@
 }
 ```
 * v1.firmware.certificate.result
+
 Поля:
 ```json
 {

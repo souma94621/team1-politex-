@@ -1,5 +1,6 @@
 ## Архитектура эксплуатанта
-<img width="1134" height="1031" alt="эксплуатант" src="https://github.com/user-attachments/assets/41703489-997a-425a-8325-fb9894d457b0" />
+<img width="1134" height="1031" alt="эксплуатант" src="https://github.com/user-attachments/assets/b15de25e-7b59-4da7-b5e6-be6845b564ff" />
+
 ### Топики
 * v1.orvd.component - в процессе обсуждения названия
 * v1.drone_port.orchestretor - в процессе обсуждения полей

@@ -4,8 +4,9 @@
 * эксплуатанты
 * DevSecOps
 
-## Взаимодействие между разработчиком БАС регулятором и эксплуатантом
-![эксплуатант](https://github.com/user-attachments/assets/e14791f4-e733-4036-a17a-1d8db85a0bbf)
+## Архитектруа регулятора:
+<img width="1134" height="1031" alt="регулятор" src="https://github.com/user-attachments/assets/b168aa57-0364-4acc-bf5c-58ef297d9eab" />
+
 
 
 ### Топики

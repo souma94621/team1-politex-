@@ -1,0 +1,6 @@
+pytest
+pytest-timeout
+paho-mqtt
+kafka-python
+pydantic
+python-dotenv

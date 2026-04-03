@@ -167,55 +167,59 @@ async def test_drone_registration_flow():
 
     await broker.close()
 
-
 # ---------------------------------------------------------------------------
-# Тест 3: Сертификация оператора (эксплуатанта)
+# Тест 3: Проверка достоверности сертификата дрона
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
-async def test_operator_certification_flow():
-    """Запрос сертификата оператора и проверка ответа."""
+async def test_drone_certificate_verification():
+    """
+    Тест проверки достоверности сертификата дрона.
+    Регулятор должен подтвердить (status: certified), что сертификат валиден.
+    """
     broker = create_broker_adapter()
     await broker.connect()
 
-    message_id = f"op-cert-req-{uuid.uuid4().hex[:8]}"
-    operator_id = f"OP-{uuid.uuid4().hex[:6].upper()}"
+    request_id = str(uuid.uuid4())
     received = []
 
     async def on_result(topic, message):
         if isinstance(message, str):
             message = json.loads(message)
-        if message.get("message_id") == message_id:
+        # Проверяем, что это ответ на наш конкретный запрос
+        if message.get("request_id") == request_id:
             received.append(message)
 
-    await broker.subscribe(Config.TOPIC_OPERATOR_RESULT, on_result)
+    # Подписываемся на топик результатов (используем существующий или отдельный для проверок)
+    await broker.subscribe(Config.TOPIC_DRONE_RESULT, on_result)
     await asyncio.sleep(1)
 
-    request = OperatorRequest(
-        timestamp=datetime.utcnow(),
-        message_id=message_id,
-        operator_id=operator_id,
-        drone_id="DRN-C2-4048",
-        digital_signature="sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6"
-    )
-    await broker.publish(Config.TOPIC_OPERATOR_REQUEST, request.model_dump_json())
-
+    # Формируем запрос в формате, который ждет другая система (через action)
+    verify_request = {
+        "action": "VERIFY_CERTIFICATE",
+        "request_id": request_id,
+        "timestamp": datetime.utcnow().isoformat(),
+        "payload": {
+            "drone_id": "AGRO-DRONE-X1",
+            "certificate_id": "CERT-888-999"
+        }
+    }
+    
+    # Публикуем в топик запросов дронов
+    await broker.publish(Config.TOPIC_CERT_VERIFY_REQUEST, json.dumps(verify_request))
+    # Ожидаем ответ 15 секунд (dummy-регулятор должен ответить мгновенно)
     start = asyncio.get_event_loop().time()
-    while not received and (asyncio.get_event_loop().time() - start) < 30:
+    while not received and (asyncio.get_event_loop().time() - start) < 15:
         await asyncio.sleep(0.5)
 
-    assert received, "Регулятор не прислал ответ на запрос сертификата оператора"
-    result = OperatorResult(**received[0])
-
-    assert result.message_id == message_id
-    assert result.operator_id == operator_id
-    assert result.certificate_status in ["certified", "rejected"]
-
-    if result.certificate_status == "certified":
-        assert result.certificate_id is not None
-        print(f"\n[УСПЕХ] Оператор {operator_id} сертифицирован: {result.certificate_id}")
-    else:
-        print(f"\n[ОТКАЗ] Оператору {operator_id} отказано в сертификации")
+    assert received, "Регулятор не ответил на запрос проверки сертификата"
+    
+    # Проверки по требованию преподавателя:
+    result = received[0]
+    assert result.get("status") == "certified", f"Статус должен быть certified, а пришел {result.get('status')}"
+    assert result.get("drone_id") == "AGRO-DRONE-X1"
+    
+    print(f"\n[УСПЕХ] Сертификат подтвержден для дрона: {result.get('drone_id')}")
 
     await broker.close()
 
@@ -241,7 +245,7 @@ async def test_insurer_request_flow():
             received.append(message)
 
     await broker.subscribe(Config.TOPIC_INSURER_RESPONSE, on_result)
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
 
     request = InsurerRequest(
         timestamp=datetime.utcnow(),

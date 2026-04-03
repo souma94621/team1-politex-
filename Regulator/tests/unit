@@ -1,0 +1,25 @@
+# tests/unit/test_certificate_manager.py
+import pytest
+from datetime import datetime, timedelta
+from src.certificate_manager import CertificateManager
+from src.models import Certificate
+
+@pytest.fixture
+def cert_manager(tmp_path):
+    cert_path = tmp_path / "certs.json"
+    crl_path = tmp_path / "crl.json"
+    return CertificateManager(str(cert_path), str(crl_path), "test_key")
+
+def test_create_certificate(cert_manager):
+    cert = cert_manager.create_certificate("test", "id123", ["goal1"], 30)
+    assert cert.certificate_id.startswith("CERT-TEST-")
+    assert len(cert_manager.certificates) == 1
+    assert cert_manager.get_certificate(cert.certificate_id) == cert
+
+def test_verify_certificate(cert_manager):
+    cert = cert_manager.create_certificate("test", "id456", ["goal1"], 1)
+    # Срок действия истекает через 1 день, сейчас должен быть валидным
+    assert cert_manager.verify_certificate(cert) is True
+    # Отзываем
+    cert_manager.revoke_certificate(cert.certificate_id)
+    assert cert_manager.verify_certificate(cert) is False

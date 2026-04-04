@@ -3,15 +3,15 @@ import logging
 from datetime import datetime
 from models import OperatorRequest, OperatorResult
 from certificate_manager import CertificateManager
-from broker_client import BrokerClient
+from broker.src.system_bus import SystemBus
 from config import Config
 
 logger = logging.getLogger(__name__)
 
 class OperatorHandler:
-    def __init__(self, cert_manager: CertificateManager, broker: BrokerClient):
+    def __init__(self, cert_manager: CertificateManager, bus: SystemBus):
         self.cert_manager = cert_manager
-        self.broker = broker
+        self.bus = bus
 
     async def handle(self, message: dict):
         try:
@@ -33,7 +33,7 @@ class OperatorHandler:
                 certificate_id=cert.certificate_id,
                 digital_signature=cert.digital_signature
             )
-            await self.broker.publish(Config.TOPIC_OPERATOR_RESULT, result.model_dump_json())
+            self.bus.respond(message, result.model_dump())
             logger.info(f"Operator {req.operator_id} certified with {cert.certificate_id}")
         except Exception as e:
             logger.error(f"Error processing operator request: {e}", exc_info=True)

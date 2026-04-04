@@ -1,6 +1,7 @@
 import asyncio
 import sys
 import os
+import logging
 import json  # <-- ДОБАВИЛИ ИМПОРТ JSON
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from certificate_manager import CertificateManager
 from security_test_runner import SecurityTestRunner
 from coverage_controller import CoverageController
 from dispatcher import Dispatcher
+from broker.bus_factory import create_system_bus
 
 # Импорт обработчиков
 from handlers.firmware_handler import FirmwareHandler
@@ -23,8 +25,12 @@ from handlers.operator_handler import OperatorHandler
 from handlers.insurer_handler import InsurerHandler
 from handlers.certificate_verify_handler import CertificateVerifyHandler
 from handlers.certificate_revoke_handler import CertificateRevokeHandler
+from certificate_manager import CertificateManager
+logger = logging.getLogger(__name__)
 
 async def main():
+    bus = create_system_bus(client_id="regulator")
+    bus.start()
     # 1. Настройка логирования
     logger = setup_logging()
     logger.info("Starting Regulator System...")
@@ -41,19 +47,23 @@ async def main():
     test_runner = SecurityTestRunner(mock=Config.MOCK_SECURITY_TESTS)
     coverage_controller = CoverageController(mock=Config.MOCK_COVERAGE)
     
-    # 3. Создание адаптера брокера
-    broker = create_broker_adapter()
 
-    # 4. Регистрация обработчиков бизнес-логики
+    # Регистрация обработчиков бизнес-логики
     firmware_handler = FirmwareHandler(cert_manager, test_runner, coverage_controller, broker)
-    drone_handler = DroneHandler(cert_manager, broker)
-    operator_handler = OperatorHandler(cert_manager, broker)
-    insurer_handler = InsurerHandler(broker)
-    verify_handler = CertificateVerifyHandler(cert_manager, broker)
-    revoke_handler = CertificateRevokeHandler(cert_manager, broker)
+    drone_handler = DroneHandler(cert_manager, bus)
+    operator_handler = OperatorHandler(cert_manager, bus)
+    insurer_handler = InsurerHandler(bus)
+    verify_handler = CertificateVerifyHandler(cert_manager, bus)
+    revoke_handler = CertificateRevokeHandler(cert_manager, bus)
     
     # 5. Настройка Диспетчера
-    dispatcher = Dispatcher()
+    def sync_dispatch(message):
+    asyncio.run_coroutine_threadsafe(
+        dispatcher.dispatch(message),
+        loop
+    )
+
+    bus.subscribe("systems.certification", sync_dispatch)
     
     routes = {
         Config.TOPIC_FIRMWARE_REQUEST: firmware_handler.handle,
@@ -73,30 +83,42 @@ async def main():
         # data уже должен быть словарем благодаря правке в адаптере выше
         await dispatcher.dispatch(topic, data)
 
-    # 6. Запуск сетевого взаимодействия
-    try:
-        logger.info("Connecting to broker...")
-        await broker.connect()
-        
-        # Подписка: используем safe_dispatch вместо dispatcher.dispatch
-        for topic in dispatcher.routes.keys():
-            await broker.subscribe(topic, safe_dispatch) # <-- ЗАМЕНИЛИ ЗДЕСЬ
-            logger.info(f"Subscribed to topic: {topic}")
-        
-        logger.info("Regulator is ready and consuming messages.")
-        await broker.start_consuming()
-        
-        while True:
-            await asyncio.sleep(1)
-            
-    except KeyboardInterrupt:
-        logger.info("Manual shutdown initiated...")
-    except Exception as e:
-        logger.error(f"Critical system error: {e}")
-    finally:
-        logger.info("Closing connections...")
-        await broker.close()
+    loop = asyncio.get_event_loop()
+    
+    #  SystemBus вместо broker
+    bus = create_system_bus(client_id="regulator")
+    bus.start()
 
+    cert_manager = CertificateManager()
+    dispatcher = Dispatcher()
+
+    # handlers
+    verify_handler = CertificateVerifyHandler(cert_manager, bus)
+    revoke_handler = CertificateRevokeHandler(cert_manager, bus)
+
+    # регистрация action
+    dispatcher.register("verify_certificate", verify_handler.handle)
+    dispatcher.register("revoke_certificate", revoke_handler.handle)
+
+    #  bridge sync → async
+    def safe_dispatch(message):
+        asyncio.run_coroutine_threadsafe(
+            dispatcher.dispatch(message),
+            loop
+        )
+
+    #  подписка (ОДИН ТОПИК!)
+    bus.subscribe("systems.certification", safe_dispatch)
+
+    logger.info("Regulator started with SystemBus 🚀")
+
+    # просто держим приложение живым
+    while True:
+        await asyncio.sleep(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 if __name__ == "__main__":
     try:
         asyncio.run(main())

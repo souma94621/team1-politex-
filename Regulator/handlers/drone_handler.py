@@ -3,15 +3,15 @@ import logging
 from datetime import datetime
 from models import DroneRequest, DroneResult
 from certificate_manager import CertificateManager
-from broker_client import BrokerClient
+from broker.src.system_bus import SystemBus
 from config import Config
 
 logger = logging.getLogger(__name__)
 
 class DroneHandler:
-    def __init__(self, cert_manager: CertificateManager, broker: BrokerClient):
+    def __init__(self, cert_manager: CertificateManager, bus: SystemBus):
         self.cert_manager = cert_manager
-        self.broker = broker
+        self.bus = bus
 
     async def handle(self, message: dict):
         try:
@@ -28,7 +28,7 @@ class DroneHandler:
                     drone=None,
                     certificate=None
                 )
-                await self.broker.publish(Config.TOPIC_DRONE_RESULT, result.model_dump_json())
+                self.bus.respond(message, result.model_dump())
                 logger.warning(f"Drone {req.request_id}: missing firmware certificate")
                 return
 
@@ -66,7 +66,7 @@ class DroneHandler:
                 },
                 certificate=cert.model_dump()
             )
-            await self.broker.publish(Config.TOPIC_DRONE_RESULT, result.model_dump_json())
+            self.bus.respond(message, result.model_dump())
             logger.info(f"Drone {req.request_id} registered with {cert.certificate_id}")
         except Exception as e:
             logger.error(f"Error processing drone registration: {e}", exc_info=True)

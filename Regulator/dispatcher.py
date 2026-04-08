@@ -7,12 +7,12 @@ class Dispatcher:
     def __init__(self):
         self.routes = {}
 
-    def register(self, action, handler):
-        self.routes[action] = handler
+    def register(self, topic, handler):
+        self.routes[topic] = handler
 
-    async def dispatch(self, message):
+    async def dispatch(self, topic, message):
         try:
-            # 1. Декодируем сообщение
+            # ПРОВЕРКА 1: Если пришла строка, превращаем в словарь
             if isinstance(message, str):
                 data = json.loads(message)
             elif isinstance(message, bytes):
@@ -20,24 +20,15 @@ class Dispatcher:
             else:
                 data = message
 
-            # 2. Берём action
-            action = data.get("action")
-
-            if not action:
-                logger.warning("Message without action")
-                return
-
-            # 3. Ищем handler
-            handler = self.routes.get(action)
-
-            if not handler:
-                logger.warning(f"No handler for action: {action}")
-                return
-
-            # 4. Вызываем handler
-            await handler(data)
+            # Теперь data ГАРАНТИРОВАННО словарь
+            handler = self.routes.get(topic)
+            if handler:
+                # ПРОВЕРКА 2: Вызываем обработчик
+                await handler(data) 
+            else:
+                logger.warning(f"No handler for topic {topic}")
 
         except json.JSONDecodeError:
-            logger.error(f"Invalid JSON: {message}")
+            logger.error(f"Crictical: Message on {topic} is not valid JSON: {message}")
         except Exception as e:
             logger.error(f"Error in dispatcher: {e}", exc_info=True)

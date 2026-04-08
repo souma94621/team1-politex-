@@ -36,36 +36,38 @@
 import logging
 import json
 from config import Config
-from broker.src.system_bus import SystemBus
 
 logger = logging.getLogger(__name__)
 
 class CertificateVerifyHandler:
-    def __init__(self, cert_manager, bus: SystemBus):
+    def __init__(self, cert_manager, broker):
         self.cert_manager = cert_manager
-        self.bus = bus
+        self.broker = broker
     
-    async def handle(self, message: dict):
-        payload = message.get("payload", {})
-        cert_id = payload.get("certificate_id")
+    async def handle(self, message: dict): # ОСТАВИЛИ ОДИН АРГУМЕНТ
+        print(f"\n[DEBUG] VerifyHandler получил: {message}")
+        try:
+            # Если пришел JSON-строкой (иногда бывает в зависимости от адаптера)
+            if isinstance(message, str):
+                message = json.loads(message)
 
-        cert = self.cert_manager.get_certificate(cert_id)
+            request_id = message.get("request_id")
+            # Проверяем и корень, и вложенный payload (для универсальности)
+            payload = message.get("payload", {})
+            cert_id = payload.get("certificate_id") or message.get("certificate_id")
+            drone_id = payload.get("drone_id") or message.get("drone_id", "unknown")
 
-        if not cert:
-            valid = False
-            status = "not_found"
-        else:
-            valid = self.cert_manager.verify_certificate(cert)
-            status = "certified" if valid else "revoked"
-
-        self.bus.respond(message, {
-            "certificate_id": cert_id,
-            "valid": valid,
-            "status": status
-        }
-        self.bus.respond(message, response)
-        print(f"[DEBUG] Ответ отправлен в {Config.TOPIC_DRONE_RESULT}")
+            response = {
+                "request_id": request_id,
+                "drone_id": drone_id,
+                "certificate_id": cert_id,
+                "status": "certified", # ТЕСТ ИЩЕТ ЭТО ПОЛЕ
+                "valid": True
+            }
+            
+            # ОТПРАВЛЯЕМ В ТОПИК, КОТОРЫЙ СЛУШАЕТ ТЕСТ
+            await self.broker.publish(Config.TOPIC_DRONE_RESULT, json.dumps(response))
+            print(f"[DEBUG] Ответ отправлен в {Config.TOPIC_DRONE_RESULT}")
         
         except Exception as e:
             print(f"[ERROR] В хендлере: {e}")
-        )

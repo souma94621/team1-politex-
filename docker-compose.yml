@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Брокер для MQTT (нужен для mqtt_adapter.py)
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto_regulator
+    ports:
+      - "1883:1883"
+    # Разрешаем анонимные подключения для тестов
+    command: mosquitto -c /mosquitto-no-auth.conf
+    networks:
+      - regulator_net
+
+  # Инфраструктура для Kafka (нужна для kafka_adapter.py)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper_regulator
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - regulator_net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0    
+    container_name: kafka_regulator
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # УДАЛИТЕ все упоминания KRAFT, CLUSTER_ID и PROCESS_ROLES
+    networks:
+      - regulator_net
+
+networks:
+  regulator_net:
+    driver: bridge

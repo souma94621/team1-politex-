@@ -3,10 +3,6 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 from enum import Enum
 
-class MessageHeader(BaseModel):
-    version: str = "1.0"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    message_id: str
 
 class FirmwareRequest(BaseModel):
     request_id: str
@@ -15,17 +11,20 @@ class FirmwareRequest(BaseModel):
     firmware: Dict[str, Any]   # repository_url, commit_hash, version
     drone_type: str
 
+
 class FirmwareResult(BaseModel):
     request_id: str
     timestamp: datetime
     status: str   # "CERTIFIED" or "REJECTED"
     certificate: Optional[Dict[str, Any]] = None
 
+
 class DroneRequest(BaseModel):
     request_id: str
     timestamp: datetime
     drone: Dict[str, Any]   # model, serial_number, manufacturer
     firmware: Dict[str, Any]   # version, certificate_id
+
 
 class DroneResult(BaseModel):
     request_id: str
@@ -34,12 +33,14 @@ class DroneResult(BaseModel):
     drone: Optional[Dict[str, Any]] = None
     certificate: Optional[Dict[str, Any]] = None
 
+
 class OperatorRequest(BaseModel):
     timestamp: datetime
     message_id: str
     operator_id: str
     drone_id: str
     digital_signature: str
+
 
 class OperatorResult(BaseModel):
     timestamp: datetime
@@ -49,13 +50,19 @@ class OperatorResult(BaseModel):
     certificate_id: Optional[str] = None
     digital_signature: str
 
+
 class InsurerRequest(BaseModel):
     timestamp: datetime
     message_id: str
     insurer_id: str
-    order_id: str
-    amount: float
-    incident_id: str
+    requirements_checked: Optional[List[str]] = None
+    status: Optional[str] = None
+    digital_signature: Optional[str] = None
+    # дополнительные поля от UI
+    order_id: Optional[str] = None
+    amount: Optional[float] = None
+    incident_id: Optional[str] = None
+
 
 class InsurerResponse(BaseModel):
     timestamp: datetime
@@ -65,6 +72,7 @@ class InsurerResponse(BaseModel):
     reason: Optional[str] = None
     digital_signature: str
 
+
 class Certificate(BaseModel):
     certificate_id: str
     issued_at: datetime
@@ -73,7 +81,6 @@ class Certificate(BaseModel):
     subject_id: str
     security_goals: List[str]
     digital_signature: str
-    
+
     def is_valid(self) -> bool:
-        # Важно: используем текущее время для проверки
         return datetime.utcnow() < self.valid_until

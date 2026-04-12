@@ -1,6 +1,7 @@
 # handlers/firmware_handler.py
 import logging
 import json
+import hashlib
 from datetime import datetime
 
 from ..models import FirmwareRequest, FirmwareResult
@@ -21,18 +22,19 @@ class FirmwareHandler:
         self.coverage_controller = coverage_controller
         self.broker = broker
 
-    async def handle(self, message):
+    async def handle(self, message: dict):
         try:
             if isinstance(message, (str, bytes)):
                 data = json.loads(message)
             else:
                 data = message
 
-            logger.info(f"[DEBUG] FirmwareHandler received: {data}")
+            logger.info(f"[FirmwareHandler] received: {data}")
 
             req = FirmwareRequest(**data)
             logger.info(f"--- [START] Processing firmware request: {req.request_id} ---")
 
+            # Запуск тестов безопасности
             logger.info(f"Running security tests for {req.drone_type}...")
             test_result = await self.test_runner.run_tests(req.firmware)
 
@@ -40,29 +42,49 @@ class FirmwareHandler:
                 logger.warning(f"!!! SECURITY ALERT: Firmware {req.request_id} rejected !!!")
                 result = FirmwareResult(
                     request_id=req.request_id,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.utcnow(),
                     status="REJECTED",
                     certificate=None
                 )
-                await self.broker.publish(Config.TOPIC_FIRMWARE_RESULT, result.model_dump_json())
+                await self.broker.publish(Config.TOPIC_FIRMWARE_RESULT, json.loads(result.model_dump_json()))
                 return
 
-            logger.info("Security tests passed. Generating certificate...")
+            # Проверка покрытия
+            repo_url = req.firmware.get("repository_url", "")
+            commit_hash = req.firmware.get("commit_hash", req.request_id)
+            coverage = await self.coverage_controller.get_coverage(repo_url, commit_hash)
+            logger.info(f"Coverage: {coverage}%")
+
+            # Создание сертификата
+            security_goals = ["FW-SEC-01", "FW-SEC-02", "FW-SEC-05"]
             cert = self.cert_manager.create_certificate(
                 subject_type="firmware",
-                subject_id=req.firmware.get("commit_hash", req.request_id),
-                security_goals=["FW-SEC-01", "FW-SEC-02", "FW-SEC-05"]
+                subject_id=commit_hash,
+                security_goals=security_goals
             )
 
+            # Хэш сертификата
+            cert_hash = hashlib.sha256(cert.certificate_id.encode()).hexdigest()[:12]
+
+            # Формируем ответ по спецификации
             result = FirmwareResult(
                 request_id=req.request_id,
-                timestamp=datetime.now(),
+                timestamp=datetime.utcnow(),
                 status="CERTIFIED",
-                certificate=cert.model_dump()
+                certificate={
+                    "certificate_id": cert.certificate_id,
+                    "firmware": {
+                        "version": req.firmware.get("version", ""),
+                        "commit_hash": commit_hash,
+                    },
+                    "drone_type": req.drone_type,
+                    "requirements_checked": security_goals,
+                    "hash": cert_hash,
+                    "digital_signature": cert.digital_signature,
+                }
             )
 
-            response_json = result.model_dump_json()
-            await self.broker.publish(Config.TOPIC_FIRMWARE_RESULT, response_json)
+            await self.broker.publish(Config.TOPIC_FIRMWARE_RESULT, json.loads(result.model_dump_json()))
             logger.info(f"+++ [SUCCESS] Firmware {req.request_id} certified as {cert.certificate_id} +++")
 
         except json.JSONDecodeError as e:

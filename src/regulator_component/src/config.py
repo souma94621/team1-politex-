@@ -4,7 +4,7 @@ class Config:
     # --- Брокер сообщений (общий) ---
     # По умолчанию выбираем kafka, так как это указано в логах main.py
     BROKER_TYPE = os.getenv("BROKER_TYPE", "kafka")
-    BROKER_URL = os.getenv("BROKER_URL", "amqp://guest:guest@localhost/")
+    BROKER_URL = os.getenv("BROKER_URL", "localhost")
     EXCHANGE_NAME = "amq.topic"
     
     # --- Топики входящие ---

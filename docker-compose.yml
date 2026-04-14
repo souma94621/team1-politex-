@@ -4,7 +4,7 @@ services:
   regulator_component:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.component
     profiles: ["kafka", "mqtt"]
     environment:
       - COMPONENT_ID=regulator_component
@@ -39,7 +39,7 @@ services:
   regulator_journal:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: sdk/journal_docker/Dockerfile
     profiles: ["kafka", "mqtt"]
     environment:
       - COMPONENT_ID=regulator_journal
@@ -56,3 +56,4 @@ networks:
   drones_net:
     external: true
     name: ${DOCKER_NETWORK:-drones_net}
+    

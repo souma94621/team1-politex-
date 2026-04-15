@@ -3,12 +3,12 @@ import json
 import logging
 import paho.mqtt.client as mqtt
 from config import Config
+import os
 
 logger = logging.getLogger(__name__)
 
-MQTT_HOST = "localhost"
-MQTT_PORT = 1883
-
+MQTT_HOST = os.getenv("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 
 class BrokerService:
     async def send_and_wait(self, request_topic, response_topic, payload):

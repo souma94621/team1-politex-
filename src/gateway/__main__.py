@@ -7,7 +7,7 @@ import os
 
 # broker — внешняя зависимость из репозитория интегратора
 from broker.bus_factory import create_system_bus
-from systems.regulator.src.gateway.src.gateway import RegulatorGateway
+from systems.team1_regulator_operation_devsecops.src.gateway.src.gateway import RegulatorGateway
 
 
 def main():

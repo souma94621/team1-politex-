@@ -98,5 +98,18 @@
       "DRONE-AUTH"
     ],
     "digital_signature": "ec9d0a1346b42071d77e82d1c2cff7d05ed684a2a79bdc669938be7d5d6636c3"
+  },
+  {
+    "certificate_id": "CERT-FIRMWARE-20260414071328-qwe",
+    "issued_at": "2026-04-14 07:13:28.406900",
+    "valid_until": "2027-04-14 07:13:28.406900",
+    "subject_type": "firmware",
+    "subject_id": "qwe",
+    "security_goals": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+    ],
+    "digital_signature": "2982925600ac09267bde8f47bc89a77c4e84c927226fd9218e2b3d870294dc71"
   }
 ]

@@ -1,6 +1,6 @@
 ## Архитектура регулятора:
 ### Топики
-* v1.operator.op1.certificate_request
+* v1.certificate.status.request
 ```
 {
   "timestamp": "2026-03-18T17:50:00Z",
@@ -10,7 +10,7 @@
   "digital_signature": "sha256:a1b2c3d4e5..."
 }
 ```
-* v1.operator.op1.certificate_result
+* v1.certificate.status.result
 ```
 {
   "timestamp": "2026-03-18T17:50:00Z",

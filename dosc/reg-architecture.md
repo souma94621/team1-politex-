@@ -152,6 +152,45 @@
   "drone_id": "DRN-C2-4048",
   "certificate_status": "certified",
   "certificate_id": "CERT-2026-999-XYZ",
+  "security_goals_checked": ["FW-SEC-01", "FW-SEC-02", "FW-SEC-05"],
   "digital_signature": "sha256:f1g2h3j4k5..."
+}
+```
+* v1.certificate.status.request
+```
+{
+  "request_id": "req-status-001",
+  "timestamp": "2026-03-18T17:50:00Z",
+  "certificate_id": "CERT-FW-2026-001"
+}
+```
+* v1.certificate.status.result
+```
+{
+  "request_id": "req-status-001",
+  "timestamp": "2026-03-18T17:50:01Z",
+  "certificate_id": "CERT-FW-2026-001",
+  "status": "VALID"
+}
+```
+* v1.drone.owner.transfer.request
+```
+{
+  "request_id": "req-transfer-001",
+  "timestamp": "2026-03-15T10:00:00Z",
+  "drone_id": "DRN-C2-4048",
+  "current_owner_id": "OP-77",
+  "new_owner_id": "OP-88"
+}
+```
+* v1.drone.owner.transfer.result
+```
+{
+  "request_id": "req-transfer-001",
+  "timestamp": "2026-03-15T10:00:02Z",
+  "status": "APPROVED",
+  "drone_certificate_id": "CERT-DRONE-2026-04521",
+  "new_owner_id": "OP-88",
+  "errors": []
 }
 ```

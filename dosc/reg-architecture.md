@@ -1,8 +1,6 @@
 ## Архитектура регулятора:
 ### Топики
-
-* v1.firmware.certification.request
-
+#### v1.firmware.certification.request
 ```json
 {
   "request_id": "req-fw-001",
@@ -19,7 +17,7 @@
   "drone_type": "DeliveryDrone-X2"
 }
 ```
-* v1.firmware.certificate.result
+#### v1.firmware.certificate.result
 
 ```json
 {
@@ -49,7 +47,7 @@
   }
 }
 ```
-* v1.drone.registration.request
+#### v1.drone.registration.request
 
 ```json
 {
@@ -68,7 +66,7 @@
   }
 }
 ```
-* v1.drone.registration.result
+#### v1.drone.registration.result
 
 ```json
 {
@@ -90,7 +88,7 @@
   }
 }
 ```
-* v1.system.certification.request
+#### v1.system.certification.request
 
 ```
 {
@@ -104,7 +102,7 @@
   "commit_hash": "d71763e430b45ee01012b005751861627d7b4147"
 }
 ```
-* v1.system.certification.result
+#### v1.system.certification.result
 
 ```
 {
@@ -133,7 +131,7 @@
   "errors": []
 }
 ```
-* v1.operator.certificate_status.request
+#### v1.operator.certificate_status.request
 ```
 {
   "timestamp": "2026-03-18T17:50:00Z",
@@ -143,7 +141,7 @@
   "digital_signature": "sha256:a1b2c3d4e5..."
 }
 ```
-* v1.operator.certificate_status.result
+#### v1.operator.certificate_status.result
 ```
 {
   "timestamp": "2026-03-18T17:50:00Z",
@@ -156,7 +154,7 @@
   "digital_signature": "sha256:f1g2h3j4k5..."
 }
 ```
-* v1.certificate.status.request
+#### v1.certificate.status.request
 ```
 {
   "request_id": "req-status-001",
@@ -164,7 +162,7 @@
   "certificate_id": "CERT-FW-2026-001"
 }
 ```
-* v1.certificate.status.result
+#### v1.certificate.status.result
 ```
 {
   "request_id": "req-status-001",
@@ -173,7 +171,7 @@
   "status": "VALID"
 }
 ```
-* v1.drone.owner.transfer.request
+#### v1.drone.owner.transfer.request
 ```
 {
   "request_id": "req-transfer-001",
@@ -183,7 +181,7 @@
   "new_owner_id": "OP-88"
 }
 ```
-* v1.drone.owner.transfer.result
+#### v1.drone.owner.transfer.result
 ```
 {
   "request_id": "req-transfer-001",

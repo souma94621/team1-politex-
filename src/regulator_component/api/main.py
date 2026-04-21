@@ -237,3 +237,42 @@ async def shutdown_event():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
+
+# -------- МОДЕЛИ ДЛЯ ПРОВЕРКИ СЕРТИФИКАТА --------
+
+class CertificateVerifyRequest(BaseModel):
+    check_type: str  # "drone" или "firmware"
+    serial_number: Optional[str] = None   # для дрона
+    drone_type: Optional[str] = None      # для прошивки
+    firmware_version: Optional[str] = None  # для прошивки
+
+# -------- НОВЫЙ ЭНДПОИНТ ПРОВЕРКИ (использует MQTT) --------
+
+@app.post("/certificate/verify")
+async def verify_certificate(req: CertificateVerifyRequest):
+    """
+    Проверяет статус сертификата через MQTT.
+    Для дрона: передайте check_type="drone" и serial_number.
+    Для прошивки: check_type="firmware", drone_type и firmware_version.
+    """
+    try:
+        logger.info(f"Certificate verify request: {req.dict()}")
+        
+        # Формируем payload как ожидает ваш MQTT-обработчик
+        payload = req.dict()
+        payload["timestamp"] = datetime.now(timezone.utc).isoformat()
+        
+        result = await broker.send_and_wait(
+            Config.TOPIC_CERT_VERIFY_REQUEST,
+            Config.TOPIC_CERT_VERIFY_RESPONSE,
+            payload
+        )
+        
+        return {
+            "status": "success",
+            "result": result,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Certificate verify error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

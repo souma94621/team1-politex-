@@ -111,5 +111,68 @@
       "FW-SEC-05"
     ],
     "digital_signature": "2982925600ac09267bde8f47bc89a77c4e84c927226fd9218e2b3d870294dc71"
+  },
+  {
+    "certificate_id": "CERT-FIRMWARE-20260415160755-qwerty",
+    "issued_at": "2026-04-15 16:07:55.298756",
+    "valid_until": "2027-04-15 16:07:55.298756",
+    "subject_type": "firmware",
+    "subject_id": "qwerty",
+    "security_goals": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+    ],
+    "digital_signature": "e31fb696cfe05deced4c5a0f473e52738844ead9c446f9ccf8e8b1191a7bb528"
+  },
+  {
+    "certificate_id": "CERT-FIRMWARE-20260415164534-qwe4",
+    "issued_at": "2026-04-15 16:45:34.621480",
+    "valid_until": "2027-04-15 16:45:34.621480",
+    "subject_type": "firmware",
+    "subject_id": "qwe4",
+    "security_goals": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+    ],
+    "digital_signature": "fb6d2d463bdb81a36d7db82804bdd896ce8d7a3eb0feb7eec55304815829c579"
+  },
+  {
+    "certificate_id": "CERT-DRONE-20260415164850-q1",
+    "issued_at": "2026-04-15 16:48:50.347402",
+    "valid_until": "2027-04-15 16:48:50.347402",
+    "subject_type": "drone",
+    "subject_id": "q1",
+    "security_goals": [
+      "DRONE-INTEGRITY",
+      "DRONE-AUTH"
+    ],
+    "digital_signature": "2b8d638e4283763f11537503ecbc6402158f1aaeabd92d7c0e30bd748f8942c8"
+  },
+  {
+    "certificate_id": "CERT-FIRMWARE-20260416110014-",
+    "issued_at": "2026-04-16 11:00:14.309046",
+    "valid_until": "2027-04-16 11:00:14.309046",
+    "subject_type": "firmware",
+    "subject_id": "",
+    "security_goals": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+    ],
+    "digital_signature": "90e1d052fa9dcf5c91147c5f6a7f9d4853adbc2e86ba3a2016663ff2af58c01e"
+  },
+  {
+    "certificate_id": "CERT-DRONE-20260416110034-",
+    "issued_at": "2026-04-16 11:00:34.986082",
+    "valid_until": "2027-04-16 11:00:34.986082",
+    "subject_type": "drone",
+    "subject_id": "",
+    "security_goals": [
+      "DRONE-INTEGRITY",
+      "DRONE-AUTH"
+    ],
+    "digital_signature": "4f7efadedb196e20f5b7084b7a767b98a3b93cee34ed16589d6a3abd52489b1c"
   }
 ]

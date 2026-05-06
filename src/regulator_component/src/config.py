@@ -14,6 +14,12 @@ class Config:
     TOPIC_INSURER_REQUEST = "v1.Insurer.reg1.insurer-service.requests"
     TOPIC_CERT_VERIFY_REQUEST = "v1.regulator.certificate.verify.request"
     TOPIC_CERT_REVOKE_REQUEST = "v1.regulator.certificate.revoke.request"
+
+    # NEW: новые входящие топики
+    TOPIC_SYSTEM_CERT_REQUEST = "v1.system.certification.request"
+    TOPIC_DRONE_TRANSFER_REQUEST = "v1.drone.owner.transfer.request"
+    TOPIC_OPERATOR_STATUS_REQUEST = "v1.operator.certificate_status.request"
+    TOPIC_SECURITY_GOALS_REQUEST = "registry.security.goals.request"
     
     # --- Топики исходящие ---
     TOPIC_FIRMWARE_RESULT = "v1.firmware.certificate.result"
@@ -22,11 +28,20 @@ class Config:
     TOPIC_INSURER_RESPONSE = "v1.Insurer.reg1.insurer-service.responses"
     TOPIC_CERT_VERIFY_RESPONSE = "v1.regulator.certificate.verify.response"
     TOPIC_CERT_REVOKE_RESPONSE = "v1.regulator.certificate.revoke.response"
+
+     # NEW: новые исходящие топики
+    TOPIC_SYSTEM_CERT_RESPONSE = "v1.system.certification.response"
+    TOPIC_DRONE_TRANSFER_RESPONSE = "v1.drone.owner.transfer.response"
+    TOPIC_OPERATOR_STATUS_RESPONSE = "v1.operator.certificate_status.response"
+    TOPIC_SECURITY_GOALS_RESPONSE = "registry.security.goals.response"
     
     # --- Хранилище сертификатов ---
     # На основе твоего скриншота, файлы лежат в корне Regulator/
     CERT_STORAGE_PATH = os.getenv("CERT_STORAGE_PATH", "certificates.json")
     CRL_STORAGE_PATH = os.getenv("CRL_STORAGE_PATH", "crl.json")
+
+    # NEW: хранилище целей безопасности
+    GOALS_STORAGE_PATH = os.getenv("GOALS_STORAGE_PATH", "security_goals.json")
     
     # --- Ключи ---
     # На основе твоего скриншота, папка keys/ существует

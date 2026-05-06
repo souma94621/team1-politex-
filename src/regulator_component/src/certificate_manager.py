@@ -1,7 +1,7 @@
 import json
 import hashlib
 from datetime import datetime, timedelta
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 from pathlib import Path
 import logging
 
@@ -24,6 +24,7 @@ class CertificateManager:
             with open(self.cert_storage_path) as f:
                 data = json.load(f)
                 for cert_data in data:
+                    # NEW: поддержка полей owner_id и extra
                     cert = Certificate(**cert_data)
                     self.certificates[cert.certificate_id] = cert
 
@@ -37,11 +38,11 @@ class CertificateManager:
                 [cert.model_dump() for cert in self.certificates.values()],
                 f,
                 default=str,
-                indent = 2
+                indent=2
             )
 
         with open(self.crl_storage_path, 'w') as f:
-            json.dump(self.crl, f, indent = 2)
+            json.dump(self.crl, f, indent=2)
 
     def _normalize(self, data: dict) -> dict:
         """Приводим данные к одному виду (строки вместо datetime)."""
@@ -59,14 +60,15 @@ class CertificateManager:
         data_str = json.dumps(normalized, sort_keys=True)
         return hashlib.sha256((data_str + self.private_key).encode()).hexdigest()
 
+    # NEW: метод с extra_fields
     def create_certificate(
         self,
         subject_type: str,
         subject_id: str,
         security_goals: List[str],
-        validity_days: int = 365
+        validity_days: int = 365,
+        extra_fields: Optional[Dict[str, Any]] = None
     ) -> Certificate:
-
         cert_id = f"CERT-{subject_type.upper()}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{subject_id[-8:]}"
         issued_at = datetime.utcnow()
         valid_until = issued_at + timedelta(days=validity_days)
@@ -79,6 +81,12 @@ class CertificateManager:
             "subject_id": subject_id,
             "security_goals": security_goals,
         }
+        # Добавляем owner_id, если передан
+        if extra_fields and "owner_id" in extra_fields:
+            cert_data["owner_id"] = extra_fields["owner_id"]
+        # Сохраняем остальные дополнительные данные в поле extra
+        if extra_fields:
+            cert_data["extra"] = extra_fields
 
         cert_data["digital_signature"] = self._sign(cert_data)
 
@@ -98,6 +106,7 @@ class CertificateManager:
             logger.warning(f"Certificate {certificate.certificate_id} expired")
             return False
 
+        # Для проверки подписи исключаем поле digital_signature
         cert_data = certificate.model_dump(exclude={'digital_signature'})
         expected_sig = self._sign(cert_data)
 
@@ -118,3 +127,13 @@ class CertificateManager:
 
     def get_certificate(self, cert_id: str) -> Optional[Certificate]:
         return self.certificates.get(cert_id)
+
+    # NEW: поиск по subject_type и subject_id
+    def find_certificate_by_subject(self, subject_type: str, subject_id: str) -> Optional[Certificate]:
+        """Находит последний (по issued_at) действующий сертификат по типу и ID."""
+        found = None
+        for cert in self.certificates.values():
+            if cert.subject_type == subject_type and cert.subject_id == subject_id:
+                if found is None or cert.issued_at > found.issued_at:
+                    found = cert
+        return found

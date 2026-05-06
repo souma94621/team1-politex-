@@ -77,10 +77,12 @@ class Certificate(BaseModel):
     certificate_id: str
     issued_at: datetime
     valid_until: datetime
-    subject_type: str   # "firmware", "drone", "operator"
+    subject_type: str   # "firmware", "drone", "operator", "system"  # NEW: добавили "system"
     subject_id: str
     security_goals: List[str]
     digital_signature: str
-
+    owner_id: Optional[str] = None          # NEW: для передачи владельца дрона
+    extra: Optional[Dict[str, Any]] = None  # NEW: для дополнительных полей (metadata, previous_certificate и т.д.)
+    
     def is_valid(self) -> bool:
         return datetime.utcnow() < self.valid_until

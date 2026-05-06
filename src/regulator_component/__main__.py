@@ -9,6 +9,7 @@ from .src.certificate_manager import CertificateManager
 from .src.security_test_runner import SecurityTestRunner
 from .src.coverage_controller import CoverageController
 from .src.dispatcher import Dispatcher
+from .src.security_goals_registry import SecurityGoalsRegistry   # NEW
 
 from .src.handlers.firmware_handler import FirmwareHandler
 from .src.handlers.drone_handler import DroneHandler
@@ -16,6 +17,11 @@ from .src.handlers.operator_handler import OperatorHandler
 from .src.handlers.insurer_handler import InsurerHandler
 from .src.handlers.certificate_verify_handler import CertificateVerifyHandler
 from .src.handlers.certificate_revoke_handler import CertificateRevokeHandler
+
+# NEW: импорт новых хендлеров
+from .src.handlers.system_cert_handler import SystemCertHandler
+from .src.handlers.owner_transfer_handler import OwnerTransferHandler
+from .src.handlers.operator_certificate_status_handler import OperatorCertificateStatusHandler
 
 
 async def main():
@@ -35,8 +41,12 @@ async def main():
     test_runner = SecurityTestRunner(mock=Config.MOCK_SECURITY_TESTS)
     coverage_controller = CoverageController(mock=Config.MOCK_COVERAGE)
 
+    # NEW: инициализация реестра целей безопасности
+    goals_registry = SecurityGoalsRegistry()
+
     broker = create_broker_adapter()
 
+    # Существующие хендлеры
     firmware_handler = FirmwareHandler(cert_manager, test_runner, coverage_controller, broker)
     drone_handler = DroneHandler(cert_manager, broker)
     operator_handler = OperatorHandler(cert_manager, broker)
@@ -44,15 +54,24 @@ async def main():
     verify_handler = CertificateVerifyHandler(cert_manager, broker)
     revoke_handler = CertificateRevokeHandler(cert_manager, broker)
 
+    # NEW: создание новых хендлеров
+    system_cert_handler = SystemCertHandler(cert_manager, broker, goals_registry)
+    owner_transfer_handler = OwnerTransferHandler(cert_manager, broker)
+    operator_status_handler = OperatorCertificateStatusHandler(cert_manager, broker)
+
     dispatcher = Dispatcher()
 
     routes = {
-        Config.TOPIC_FIRMWARE_REQUEST:    firmware_handler.handle,
-        Config.TOPIC_DRONE_REQUEST:       drone_handler.handle,
-        Config.TOPIC_OPERATOR_REQUEST:    operator_handler.handle,
-        Config.TOPIC_INSURER_REQUEST:     insurer_handler.handle,
-        Config.TOPIC_CERT_VERIFY_REQUEST: verify_handler.handle,
-        Config.TOPIC_CERT_REVOKE_REQUEST: revoke_handler.handle,
+        Config.TOPIC_FIRMWARE_REQUEST:       firmware_handler.handle,
+        Config.TOPIC_DRONE_REQUEST:          drone_handler.handle,
+        Config.TOPIC_OPERATOR_REQUEST:       operator_handler.handle,
+        Config.TOPIC_INSURER_REQUEST:        insurer_handler.handle,
+        Config.TOPIC_CERT_VERIFY_REQUEST:    verify_handler.handle,
+        Config.TOPIC_CERT_REVOKE_REQUEST:    revoke_handler.handle,
+        # NEW: новые маршруты
+        Config.TOPIC_SYSTEM_CERT_REQUEST:    system_cert_handler.handle,
+        Config.TOPIC_DRONE_TRANSFER_REQUEST: owner_transfer_handler.handle,
+        Config.TOPIC_OPERATOR_STATUS_REQUEST: operator_status_handler.handle,
     }
 
     for topic, handler_func in routes.items():
@@ -91,3 +110,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, asyncio.CancelledError):
         pass
+        

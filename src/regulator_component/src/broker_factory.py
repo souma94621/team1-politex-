@@ -1,6 +1,6 @@
 import logging
-from .config import Config
-from .broker_client import BrokerClient
+from config import Config
+from broker_client import BrokerClient
 
 logger = logging.getLogger(__name__)
 

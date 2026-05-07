@@ -2,7 +2,19 @@ import pytest
 import asyncio
 import json
 import uuid
+import sys
+import os
 from datetime import datetime
+
+# --- МАГИЯ ПУТЕЙ: чтобы Python нашел твои файлы ---
+current_dir = os.path.dirname(__file__)
+# Идем из папки tests на уровень вверх и ныряем вглубь к коду
+src_path = os.path.abspath(os.path.join(current_dir, '..', 'src', 'regulator_component', 'src'))
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+# --------------------------------------------------
+
+# Теперь импорты будут работать без ошибок
 from config import Config
 from models import (
     FirmwareRequest, FirmwareResult,
@@ -11,7 +23,6 @@ from models import (
     InsurerRequest, InsurerResponse
 )
 from broker_factory import create_broker_adapter
-
 
 # ---------------------------------------------------------------------------
 # Тест 1: Сертификация прошивки
@@ -273,4 +284,25 @@ async def test_insurer_request_flow():
     else:
         print(f"\n[ОТКАЗ] Страховой запрос {message_id} отклонён: {result.reason}")
 
+    await broker.close()
+
+@pytest.mark.asyncio
+async def test_negative_incident_in_flight():
+    """Тест негативного сценария: Регулятор фиксирует инцидент в полете."""
+    broker = create_broker_adapter()
+    await broker.connect()
+
+    incident_payload = {
+        "request_id": str(uuid.uuid4()),
+        "drone_id": "SN-ERROR-666",
+        "type": "INCIDENT",
+        "description": "Critical battery failure or collision",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    # Название топика должно соответствовать вашему API (обычно 'incidents')
+    await broker.publish("incidents", json.dumps(incident_payload))
+    
+    await asyncio.sleep(2)
+    print("\n[NEGATIVE] Инцидент отправлен регулятору.")
     await broker.close()

@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
+from src.managers.updater_service import UpdaterService
 import logging
 
 from broker import BrokerService
@@ -276,3 +277,40 @@ async def verify_certificate(req: CertificateVerifyRequest):
     except Exception as e:
         logger.error(f"Certificate verify error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ... инициализация updater
+
+@app.get("/updates/check")
+async def check_updates():
+    """Проверяет наличие обновлений."""
+    update = await updater.check_for_updates()
+    if update:
+        return {
+            "update_available": True,
+            "version": update.version,
+            "release_date": update.release_date,
+            "changelog": update.changelog,
+            "is_critical": update.is_critical
+        }
+    return {"update_available": False, "current_version": updater.current_version}
+
+@app.post("/updates/apply")
+async def apply_update():
+    """Принудительно применяет доступное обновление."""
+    update = await updater.check_for_updates()
+    if not update:
+        return {"error": "No updates available"}
+    
+    result = await updater.perform_update(update)
+    if result["success"]:
+        return {"status": "success", "new_version": result["new_version"]}
+    else:
+        return {"status": "failed", "reason": result["steps"]}
+
+@app.post("/updates/rollback")
+async def rollback_update():
+    """Откатывает последнее обновление."""
+    success = await updater.restore_backup()
+    if success:
+        return {"status": "success", "message": "Rolled back to previous version"}
+    return {"status": "failed", "message": "No backup found"}

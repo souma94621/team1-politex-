@@ -70,3 +70,6 @@ class Config:
     MQTT_USERNAME = os.getenv("MQTT_USERNAME")
     MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
     MQTT_QOS = int(os.getenv("MQTT_QOS", "1"))
+
+    # config.py
+    GOALS_STORAGE_PATH = os.getenv("GOALS_STORAGE_PATH", "security_goals.json")

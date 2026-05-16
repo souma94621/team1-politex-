@@ -1,0 +1,54 @@
+import logging
+from typing import Dict, Any
+
+from ..managers.certificate_manager import CertificateManager   # уточните импорт по вашей структуре
+from ..broker.client import BrokerClient
+from ..config.settings import Config
+from ..goals_check import GoalsCheck          # NEW
+
+logger = logging.getLogger(__name__)
+
+
+class SystemCertHandler:
+    def __init__(self, cert_manager: CertificateManager,
+                 broker: BrokerClient,
+                 goals_check: GoalsCheck):     # NEW: добавили
+        self.cert_manager = cert_manager
+        self.broker = broker
+        self.goals_check = goals_check
+
+    async def handle(self, message: Dict[str, Any]):
+        try:
+            system_id = message.get("system_id")
+            system_type = message.get("system_type", "system")
+
+            if not system_id:
+                logger.warning("SystemCertHandler: missing system_id")
+                return
+
+            # NEW: получаем цели из реестра
+            security_goals = self.goals_check.get_goals_for_system(system_type)
+            if not security_goals:
+                security_goals = ["SYSTEM-INTEGRITY"]   # fallback
+
+            cert = self.cert_manager.create_certificate(
+                subject_type="system",
+                subject_id=system_id,
+                security_goals=security_goals
+            )
+
+            response = {
+                "system_id": system_id,
+                "certificate_id": cert.certificate_id,
+                "issued_at": cert.issued_at.isoformat(),
+                "valid_until": cert.valid_until.isoformat(),
+                "security_goals": security_goals,
+                "digital_signature": cert.digital_signature,
+                "status": "CERTIFIED"
+            }
+
+            await self.broker.publish(Config.TOPIC_SYSTEM_CERT_RESPONSE, response)
+            logger.info(f"System {system_id} certified with {cert.certificate_id}")
+
+        except Exception as e:
+            logger.error(f"SystemCertHandler error: {e}", exc_info=True)

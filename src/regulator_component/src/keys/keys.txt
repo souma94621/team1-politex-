@@ -1,0 +1,5 @@
+# Генерация приватного ключа (хранится у разработчика, НЕ в репозитории)
+openssl genrsa -out regulator_private_update.pem 2048
+
+# Генерация публичного ключа (включается в Регулятор)
+openssl rsa -in regulator_private_update.pem -pubout -out regulator_public_update.pem

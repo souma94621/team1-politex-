@@ -23,8 +23,36 @@ from .src.handlers.system_cert_handler import SystemCertHandler
 from .src.handlers.owner_transfer_handler import OwnerTransferHandler
 from .src.handlers.operator_certificate_status_handler import OperatorCertificateStatusHandler
 
+from .src.security_goals_registry import SecurityGoalsRegistry   # NEW
+from .src.goals_check import GoalsCheck                         # NEW
+
 
 async def main():
+    # ... (инициализация cert_manager, test_runner и т.д.)
+
+    # NEW: создаём реестр целей и GoalsCheck
+    goals_registry = SecurityGoalsRegistry()
+    goals_check = GoalsCheck(goals_registry)
+
+    # ... создаём брокер
+
+    # Передаём goals_check во все хендлеры, которым он нужен
+    firmware_handler = FirmwareHandler(
+        cert_manager, test_runner, coverage_controller, broker,
+        goals_check=goals_check          # NEW
+    )
+    drone_handler = DroneHandler(cert_manager, broker)   # пока не использует, но можно добавить позже
+    operator_handler = OperatorHandler(cert_manager, broker)
+    insurer_handler = InsurerHandler(broker)
+    verify_handler = CertificateVerifyHandler(cert_manager, broker)
+    revoke_handler = CertificateRevokeHandler(cert_manager, broker)
+
+    # NEW: SystemCertHandler с goals_check
+    system_cert_handler = SystemCertHandler(cert_manager, broker, goals_check)
+    owner_transfer_handler = OwnerTransferHandler(cert_manager, broker)
+    operator_status_handler = OperatorCertificateStatusHandler(cert_manager, broker)
+
+    # ... регистрация маршрутов и запуск
     logger = setup_logging()
     logger.info("Starting Regulator System (Component Mode)...")
 

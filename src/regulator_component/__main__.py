@@ -26,6 +26,9 @@ from .src.handlers.operator_certificate_status_handler import OperatorCertificat
 from .src.security_goals_registry import SecurityGoalsRegistry   # NEW
 from .src.goals_check import GoalsCheck                         # NEW
 
+from .src.managers.ci_service import ContinuousIntegration
+from .src.security_test_runner import SecurityTestRunner
+
 
 async def main():
     # ... (инициализация cert_manager, test_runner и т.д.)
@@ -88,6 +91,33 @@ async def main():
     operator_status_handler = OperatorCertificateStatusHandler(cert_manager, broker)
 
     dispatcher = Dispatcher()
+
+    # Инициализация GoalsCheck и CI
+    goals_registry = SecurityGoalsRegistry()
+    goals_check = GoalsCheck(goals_registry)
+
+    ci_service = ContinuousIntegration(
+        goals_check=goals_check,
+        signature_service_url=os.getenv("SIGNATURE_SERVICE_URL"),
+        clone_timeout=int(os.getenv("CLONE_TIMEOUT", "60")),
+        test_timeout=int(os.getenv("TEST_TIMEOUT", "300"))
+    )
+
+    # Обновляем тест-раннер (не мок)
+    test_runner = SecurityTestRunner(ci_service=ci_service)  # больше не используем mock
+
+    # coverage_controller можно оставить с mock или сделать реальный
+    coverage_controller = CoverageController(mock=Config.MOCK_COVERAGE)
+
+    # Передаём ci_service в firmware_handler
+    firmware_handler = FirmwareHandler(
+        cert_manager,
+        test_runner,
+        coverage_controller,
+        broker,
+        goals_check,
+        ci_service      # NEW
+    )
 
     routes = {
         Config.TOPIC_FIRMWARE_REQUEST:       firmware_handler.handle,

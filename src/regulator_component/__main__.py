@@ -1,5 +1,6 @@
 import asyncio
 import os
+import signal
 from pathlib import Path
 
 from .src.config import Config
@@ -29,6 +30,7 @@ from .src.goals_check import GoalsCheck                         # NEW
 from .src.managers.ci_service import ContinuousIntegration
 from .src.security_test_runner import SecurityTestRunner
 
+from .src.managers.updater_service import UpdaterService
 
 async def main():
     # ... (инициализация cert_manager, test_runner и т.д.)
@@ -119,6 +121,31 @@ async def main():
         ci_service      # NEW
     )
 
+# Инициализация сервиса обновлений
+update_server_url = os.getenv("UPDATE_SERVER_URL", "https://updates.regulator.example")
+public_key_path = os.getenv("UPDATE_PUBLIC_KEY_PATH", "src/keys/regulator_public_update.pem")
+current_version = "1.0.0"  # или читаем из version.json
+
+# Определяем путь к приложению (корень регулятора)
+app_path = Path(__file__).parent.parent  # или Path.cwd()
+
+updater = UpdaterService(
+    update_server_url=update_server_url,
+    public_key_path=public_key_path,
+    current_version=current_version,
+    app_path=app_path,
+    check_interval_hours=int(os.getenv("UPDATE_CHECK_INTERVAL_HOURS", "24"))
+)
+
+ # Запускаем фоновую проверку обновлений
+ asyncio.create_task(updater.start_auto_update_checker())
+
+# Обработка сигналов для graceful shutdown
+def shutdown_handler():
+    asyncio.create_task(updater.close())
+
+signal.signal(signal.SIGTERM, lambda *_: shutdown_handler())
+signal.signal(signal.SIGINT, lambda *_: shutdown_handler())
     routes = {
         Config.TOPIC_FIRMWARE_REQUEST:       firmware_handler.handle,
         Config.TOPIC_DRONE_REQUEST:          drone_handler.handle,

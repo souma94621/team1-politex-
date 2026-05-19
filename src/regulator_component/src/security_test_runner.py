@@ -2,9 +2,9 @@
 import logging
 from typing import Dict, Any
 
-from .ci_service import ContinuousIntegration
-from ..goals_check import GoalsCheck
-from ..models import FirmwareRequest
+from managers.ci_service import ContinuousIntegration
+from goals_check import GoalsCheck
+from models import FirmwareRequest
 
 logger = logging.getLogger(__name__)
 

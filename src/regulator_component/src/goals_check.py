@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from .security_goals_registry import SecurityGoalsRegistry
+from security_goals_registry import SecurityGoalsRegistry
 
 logger = logging.getLogger(__name__)
 

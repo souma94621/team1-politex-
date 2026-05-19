@@ -2,17 +2,7 @@ import pytest
 import asyncio
 import json
 import uuid
-import sys
-import os
 from datetime import datetime
-
-# --- МАГИЯ ПУТЕЙ: чтобы Python нашел твои файлы ---
-current_dir = os.path.dirname(__file__)
-# Идем из папки tests на уровень вверх и ныряем вглубь к коду
-src_path = os.path.abspath(os.path.join(current_dir, '..', 'src', 'regulator_component', 'src'))
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-# --------------------------------------------------
 
 # Теперь импорты будут работать без ошибок
 from config import Config
@@ -202,7 +192,7 @@ async def test_drone_certificate_verification():
             received.append(message)
 
     # Подписываемся на топик результатов (используем существующий или отдельный для проверок)
-    await broker.subscribe(Config.TOPIC_DRONE_RESULT, on_result)
+    await broker.subscribe(Config.TOPIC_CERT_VERIFY_RESPONSE, on_result)
     await asyncio.sleep(1)
 
     # Формируем запрос в формате, который ждет другая система (через action)

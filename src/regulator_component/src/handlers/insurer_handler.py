@@ -2,9 +2,9 @@
 import logging
 from datetime import datetime
 
-from ..models import InsurerRequest, InsurerResponse
-from ..broker_client import BrokerClient
-from ..config import Config
+from models import InsurerRequest, InsurerResponse
+from broker_client import BrokerClient
+from config import Config
 
 logger = logging.getLogger(__name__)
 

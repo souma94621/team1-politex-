@@ -3,14 +3,14 @@ import json
 import logging
 from datetime import datetime
 
-from ..models import FirmwareRequest, FirmwareResult
-from ..certificate_manager import CertificateManager
-from ..security_test_runner import SecurityTestRunner
-from ..coverage_controller import CoverageController
-from ..broker_client import BrokerClient
-from ..config import Config
-from ..goals_check import GoalsCheck
-from ..managers.ci_service import ContinuousIntegration  # NEW
+from models import FirmwareRequest, FirmwareResult
+from certificate_manager import CertificateManager
+from security_test_runner import SecurityTestRunner
+from coverage_controller import CoverageController
+from broker_client import BrokerClient
+from config import Config
+from goals_check import GoalsCheck
+from managers.ci_service import ContinuousIntegration  # NEW
 
 logger = logging.getLogger(__name__)
 

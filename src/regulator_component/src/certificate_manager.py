@@ -5,7 +5,7 @@ from typing import Dict, Optional, List, Any
 from pathlib import Path
 import logging
 
-from .models import Certificate
+from models import Certificate
 
 logger = logging.getLogger(__name__)
 

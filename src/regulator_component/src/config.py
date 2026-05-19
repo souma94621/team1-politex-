@@ -3,8 +3,8 @@ import os
 class Config:
     # --- Брокер сообщений (общий) ---
     # По умолчанию выбираем kafka, так как это указано в логах main.py
-    BROKER_TYPE = os.getenv("BROKER_TYPE", "kafka")
-    BROKER_URL = os.getenv("BROKER_URL", "localhost")
+    BROKER_TYPE = "mqtt"
+    BROKER_URL = "localhost"
     EXCHANGE_NAME = "amq.topic"
     
     # --- Топики входящие ---
@@ -45,8 +45,8 @@ class Config:
     
     # --- Ключи ---
     # На основе твоего скриншота, папка keys/ существует
-    PRIVATE_KEY_PATH = "keys/regulator_private.pem"
-    PUBLIC_KEY_PATH = "keys/regulator_public.pem"
+    PRIVATE_KEY_PATH = "src/regulator_component/src/keys/regulator_private.pem"
+    PUBLIC_KEY_PATH = "src/regulator_component/src/keys/regulator_public.pem"
     
     # --- Параметры покрытия (Cyberimmune) ---
     COVERAGE_THRESHOLD_TRUSTED = 60      # БТ5

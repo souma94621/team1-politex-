@@ -34,6 +34,10 @@ class Config:
     TOPIC_DRONE_TRANSFER_RESPONSE = "v1.drone.owner.transfer.response"
     TOPIC_OPERATOR_STATUS_RESPONSE = "v1.operator.certificate_status.response"
     TOPIC_SECURITY_GOALS_RESPONSE = "registry.security.goals.response"
+
+      # Новые топики для оператора (проверка статуса)
+    TOPIC_OPERATOR_STATUS_REQUEST = "v1.operator.certificate_status.request"   # входящий
+    TOPIC_OPERATOR_STATUS_RESPONSE = "v1.operator.certificate_status.response" # исходящий
     
     # --- Хранилище сертификатов ---
     # На основе твоего скриншота, файлы лежат в корне Regulator/

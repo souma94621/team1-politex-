@@ -59,6 +59,7 @@ class DroneHandler:
                 subject_type="drone",
                 subject_id=serial_number,
                 security_goals=["DRONE-INTEGRITY", "DRONE-AUTH"]
+                extra_fields={"firmware_certificate_id": firmware_cert_id} 
             )
 
             reg_number = f"RU-BAS-{cert.certificate_id[-8:]}"

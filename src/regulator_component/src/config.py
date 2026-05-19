@@ -10,7 +10,6 @@ class Config:
     # --- Топики входящие ---
     TOPIC_FIRMWARE_REQUEST = "v1.firmware.certification.request"
     TOPIC_DRONE_REQUEST = "v1.drone.registration.request"
-    TOPIC_OPERATOR_REQUEST = "v1.operator.op1.certificate_request"
     TOPIC_INSURER_REQUEST = "v1.Insurer.reg1.insurer-service.requests"
     TOPIC_CERT_VERIFY_REQUEST = "v1.regulator.certificate.verify.request"
     TOPIC_CERT_REVOKE_REQUEST = "v1.regulator.certificate.revoke.request"
@@ -32,7 +31,6 @@ class Config:
      # NEW: новые исходящие топики
     TOPIC_SYSTEM_CERT_RESPONSE = "v1.system.certification.response"
     TOPIC_DRONE_TRANSFER_RESPONSE = "v1.drone.owner.transfer.response"
-    TOPIC_OPERATOR_STATUS_RESPONSE = "v1.operator.certificate_status.response"
     TOPIC_SECURITY_GOALS_RESPONSE = "registry.security.goals.response"
 
       # Новые топики для оператора (проверка статуса)

@@ -1,0 +1,40 @@
+{
+  "rules": [
+    {
+      "id": "RULE-01",
+      "name": "Слишком много отказов сертификации",
+      "event_type": "cert_rejected",
+      "threshold": 5,
+      "window_seconds": 60,
+      "severity": "HIGH",
+      "description": "Более 5 отказов в сертификации за 60 секунд"
+    },
+    {
+      "id": "RULE-02",
+      "name": "Верификация отозванного сертификата",
+      "event_type": "revoked_cert_verify",
+      "threshold": 1,
+      "window_seconds": 300,
+      "severity": "CRITICAL",
+      "description": "Попытка использовать отозванный сертификат"
+    },
+    {
+      "id": "RULE-03",
+      "name": "Неизвестный оператор",
+      "event_type": "unknown_operator",
+      "threshold": 3,
+      "window_seconds": 120,
+      "severity": "MEDIUM",
+      "description": "Повторные запросы от незарегистрированного operator_id"
+    },
+    {
+      "id": "RULE-04",
+      "name": "Флуд запросами прошивки",
+      "event_type": "firmware_request",
+      "threshold": 20,
+      "window_seconds": 60,
+      "severity": "HIGH",
+      "description": "Аномально высокая частота запросов сертификации прошивок"
+    }
+  ]
+}

@@ -32,9 +32,59 @@ from .src.security_test_runner import SecurityTestRunner
 
 from .src.managers.updater_service import UpdaterService
 
+from .src.managers.decision_engine import DecisionEngine
+
 async def main():
     # ... (инициализация cert_manager, test_runner и т.д.)
 
+
+    # NEW: создаём DecisionEngine
+    decision_engine = DecisionEngine(
+        cert_manager=cert_manager,
+        ci_service=ci_service,
+        coverage_controller=coverage_controller,
+        goals_check=goals_check
+    )
+
+    # NEW: функции-обёртки для DecisionEngine (вместо старых хендлеров)
+    async def firmware_dispatcher(data):
+        result = await decision_engine.decide_firmware_certification(data)
+        await broker.publish(Config.TOPIC_FIRMWARE_RESULT, result)
+
+    async def drone_dispatcher(data):
+        result = await decision_engine.decide_drone_registration(data)
+        await broker.publish(Config.TOPIC_DRONE_RESULT, result)
+
+    async def operator_dispatcher(data):
+        result = await decision_engine.decide_operator_status(data)
+        await broker.publish(Config.TOPIC_OPERATOR_RESULT, result)
+
+    async def system_dispatcher(data):
+        result = await decision_engine.decide_system_certification(data)
+        await broker.publish(Config.TOPIC_SYSTEM_CERT_RESPONSE, result)
+
+    async def transfer_dispatcher(data):
+        result = await decision_engine.decide_owner_transfer(data)
+        await broker.publish(Config.TOPIC_DRONE_TRANSFER_RESPONSE, result)
+
+    # Создаём диспетчер и регистрируем новые обёртки
+    dispatcher = Dispatcher()
+    
+    dispatcher.register(Config.TOPIC_FIRMWARE_REQUEST, firmware_dispatcher)
+    dispatcher.register(Config.TOPIC_DRONE_REQUEST, drone_dispatcher)
+    dispatcher.register(Config.TOPIC_OPERATOR_REQUEST, operator_dispatcher)
+    dispatcher.register(Config.TOPIC_SYSTEM_CERT_REQUEST, system_dispatcher)
+    dispatcher.register(Config.TOPIC_DRONE_TRANSFER_REQUEST, transfer_dispatcher)
+    
+    # Остальные топики (страховка, проверка, отзыв) можно оставить на старых хендлерах
+    # или тоже перевести на DecisionEngine, если у них есть методы
+    dispatcher.register(Config.TOPIC_INSURER_REQUEST, insurer_handler.handle)
+    dispatcher.register(Config.TOPIC_CERT_VERIFY_REQUEST, verify_handler.handle)
+    dispatcher.register(Config.TOPIC_CERT_REVOKE_REQUEST, revoke_handler.handle)
+
+    # ... дальше как обычно
+    for topic in dispatcher.routes.keys():
+        await broker.subscribe(topic, dispatcher.dispatch)
     # NEW: создаём реестр целей и GoalsCheck
     goals_registry = SecurityGoalsRegistry()
     goals_check = GoalsCheck(goals_registry)

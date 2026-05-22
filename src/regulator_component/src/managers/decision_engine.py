@@ -6,10 +6,10 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-from ..models import FirmwareRequest, DroneRequest, SystemRegistrationRequest
-from .certificate_manager import CertificateManager
+from ..models import FirmwareRequest, DroneRequest
+from ..certificate_manager import CertificateManager
 from .ci_service import ContinuousIntegration
-from .coverage_controller import CoverageController
+from ..coverage_controller import CoverageController
 from ..goals_check import GoalsCheck
 
 logger = logging.getLogger(__name__)

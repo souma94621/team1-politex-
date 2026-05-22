@@ -105,12 +105,12 @@ async def main():
 
     # --- Диспетчер ---
     dispatcher = Dispatcher()
-    dispatcher.register(Config.TOPIC_FIRMWARE_REQUEST,    firmware_via_engine)
-    dispatcher.register(Config.TOPIC_DRONE_REQUEST,       drone_via_engine)
-    dispatcher.register(Config.TOPIC_OPERATOR_REQUEST,    operator_handler.handle)
-    dispatcher.register(Config.TOPIC_INSURER_REQUEST,     insurer_handler.handle)
-    dispatcher.register(Config.TOPIC_CERT_VERIFY_REQUEST, verify_handler.handle)
-    dispatcher.register(Config.TOPIC_CERT_REVOKE_REQUEST, revoke_handler.handle)
+    dispatcher.register(Config.TOPIC_FIRMWARE_REQUEST,       firmware_via_engine)
+    dispatcher.register(Config.TOPIC_DRONE_REQUEST,          drone_via_engine)
+    dispatcher.register(Config.TOPIC_OPERATOR_STATUS_REQUEST, operator_handler.handle)  # исправлено
+    dispatcher.register(Config.TOPIC_INSURER_REQUEST,        insurer_handler.handle)
+    dispatcher.register(Config.TOPIC_CERT_VERIFY_REQUEST,    verify_handler.handle)
+    dispatcher.register(Config.TOPIC_CERT_REVOKE_REQUEST,    revoke_handler.handle)
 
     # --- Монитор безопасности (шаблон А.1) ---
     monitor = SecurityMonitor(

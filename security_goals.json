@@ -1,0 +1,30 @@
+{
+  "goals": {
+    "firmware": [
+      "FW-SEC-01",
+      "FW-SEC-02",
+      "FW-SEC-05"
+    ],
+    "drone": [
+      "DRONE-INTEGRITY",
+      "DRONE-AUTH"
+    ],
+    "operator": [
+      "OPERATOR-AUTH",
+      "MISSION-APPROVAL"
+    ],
+    "system": [
+      "SYSTEM-INTEGRITY"
+    ]
+  },
+  "test_commands": {
+    "FW-SEC-01": "pytest tests/test_fw_sec_01.py",
+    "FW-SEC-02": "pytest tests/test_fw_sec_02.py",
+    "FW-SEC-05": "pytest tests/test_fw_sec_05.py",
+    "DRONE-INTEGRITY": "check_drone_integrity.sh",
+    "DRONE-AUTH": "verify_drone_auth.py",
+    "OPERATOR-AUTH": "check_operator_auth.sh",
+    "MISSION-APPROVAL": "validate_mission.py",
+    "SYSTEM-INTEGRITY": "system_integrity_check.sh"
+  }
+}

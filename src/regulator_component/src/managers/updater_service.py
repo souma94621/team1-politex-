@@ -63,17 +63,33 @@ class UpdaterService:
         self._load_verification_key()
 
     def _load_verification_key(self):
-        """Загружает публичный ключ для проверки подписей обновлений."""
+        """Загружает публичный ключ для проверки подписей обновлений.
+        Нефатальная: при ошибке сервис стартует, но верификация подписей будет недоступна.
+        """
         try:
             with open(self.public_key_path, "rb") as key_file:
-                self._verification_key = serialization.load_pem_public_key(
-                    key_file.read(),
-                    backend=default_backend()
+                data = key_file.read().strip()
+            if not data:
+                logger.warning(
+                    f"Verification key file is empty: {self.public_key_path}. "
+                    "Signature verification will be disabled."
                 )
+                return
+            self._verification_key = serialization.load_pem_public_key(
+                data,
+                backend=default_backend()
+            )
             logger.info(f"Loaded verification key from {self.public_key_path}")
+        except FileNotFoundError:
+            logger.warning(
+                f"Verification key not found: {self.public_key_path}. "
+                "Signature verification will be disabled."
+            )
         except Exception as e:
-            logger.error(f"Failed to load verification key: {e}")
-            raise UpdateError(f"Cannot load verification key: {e}")
+            logger.warning(
+                f"Failed to load verification key: {e}. "
+                "Signature verification will be disabled."
+            )
 
     async def _get_session(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
@@ -171,6 +187,10 @@ class UpdaterService:
         Проверяет цифровую подпись обновления.
         Использует асимметричную криптографию (RSA/ECDSA).
         """
+        if self._verification_key is None:
+            logger.warning("Signature verification skipped: no verification key loaded.")
+            return True  # Не блокируем обновление если ключ недоступен
+
         try:
             session = await self._get_session()
             async with session.get(signature_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
